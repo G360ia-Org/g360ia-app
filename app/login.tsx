@@ -1,49 +1,39 @@
-import { useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
-import * as Google from 'expo-auth-session/providers/google';
-import * as WebBrowser from 'expo-web-browser';
+import { useState } from 'react';
+import {
+  View, Text, TouchableOpacity, StyleSheet,
+  TextInput, ActivityIndicator, KeyboardAvoidingView, Platform,
+} from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '@/context/auth';
 import LogoBrand from '@/components/ui/logo-brand';
 
-WebBrowser.maybeCompleteAuthSession();
-
-const GOOGLE_CLIENT_ID = '535906459398-i08rdcarj2n4cqhvgbp4khv6dvidcbg1.apps.googleusercontent.com';
-
 export default function LoginScreen() {
   const { signIn } = useAuth();
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId: GOOGLE_CLIENT_ID,
-  });
-
-  useEffect(() => {
-    if (response?.type === 'success') {
-      fetchUserInfo(response.authentication?.accessToken);
+  const handleLogin = async () => {
+    const trimmed = email.trim().toLowerCase();
+    if (!trimmed.includes('@')) {
+      setError('Ingresá un email válido.');
+      return;
     }
-  }, [response]);
-
-  const fetchUserInfo = async (token?: string) => {
-    if (!token) return;
-    try {
-      const res = await fetch('https://www.googleapis.com/userinfo/v2/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      await signIn({
-        id: data.id,
-        name: data.name,
-        email: data.email,
-        photo: data.picture,
-      });
-      router.replace('/(tabs)');
-    } catch (e) {
-      console.error('Error al obtener info de usuario:', e);
-    }
+    setError('');
+    setLoading(true);
+    await signIn({
+      id: trimmed,
+      name: trimmed.split('@')[0],
+      email: trimmed,
+    });
+    router.replace('/(tabs)');
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <View style={styles.logoContainer}>
         <LogoBrand size="lg" subtitle="Panel Admin" />
       </View>
@@ -51,25 +41,38 @@ export default function LoginScreen() {
       <View style={styles.card}>
         <Text style={styles.welcome}>Bienvenido</Text>
         <Text style={styles.instructions}>
-          Ingresá con tu cuenta de Google para acceder al panel.
+          Ingresá tu email para acceder al panel.
         </Text>
 
+        <TextInput
+          style={styles.input}
+          placeholder="tu@email.com"
+          placeholderTextColor="#2E4A66"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          onSubmitEditing={handleLogin}
+        />
+
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+
         <TouchableOpacity
-          style={[styles.googleButton, !request && styles.disabled]}
-          onPress={() => promptAsync()}
-          disabled={!request}
+          style={[styles.button, loading && styles.disabled]}
+          onPress={handleLogin}
+          disabled={loading}
           activeOpacity={0.85}
         >
-          {!request ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text style={styles.googleButtonText}>Ingresar con Google</Text>
-          )}
+          {loading
+            ? <ActivityIndicator color="#FFFFFF" />
+            : <Text style={styles.buttonText}>Ingresar</Text>
+          }
         </TouchableOpacity>
       </View>
 
       <Text style={styles.footer}>gestion360ia.com.ar</Text>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -90,7 +93,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#152234',
     borderRadius: 16,
     padding: 28,
-    gap: 16,
+    gap: 14,
     borderWidth: 1,
     borderColor: '#1E3350',
   },
@@ -104,18 +107,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
   },
-  googleButton: {
+  input: {
+    backgroundColor: '#0D1B2A',
+    borderWidth: 1,
+    borderColor: '#1E3350',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+    color: '#FFFFFF',
+    fontSize: 15,
+  },
+  error: {
+    color: '#E05A5A',
+    fontSize: 13,
+  },
+  button: {
     backgroundColor: '#506886',
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 8,
+    marginTop: 4,
   },
   disabled: {
     opacity: 0.5,
   },
-  googleButtonText: {
+  buttonText: {
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '600',
