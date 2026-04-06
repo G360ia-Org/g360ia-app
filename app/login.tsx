@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import { router } from 'expo-router';
 import { useAuth } from '@/context/auth';
+import LogoBrand from '@/components/ui/logo-brand';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -44,13 +45,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
-        <Image
-          source={require('@/assets/images/icon.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-        <Text style={styles.title}>Gestión 360 iA</Text>
-        <Text style={styles.subtitle}>PANEL DE ADMINISTRACIÓN</Text>
+        <LogoBrand size="lg" subtitle="Panel Admin" />
       </View>
 
       <View style={styles.card}>
@@ -68,10 +63,7 @@ export default function LoginScreen() {
           {!request ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <>
-              <Text style={styles.googleIcon}>G</Text>
-              <Text style={styles.googleButtonText}>Ingresar con Google</Text>
-            </>
+            <Text style={styles.googleButtonText}>Ingresar con Google</Text>
           )}
         </TouchableOpacity>
       </View>
@@ -92,23 +84,6 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    gap: 8,
-  },
-  logo: {
-    width: 100,
-    height: 100,
-    marginBottom: 8,
-  },
-  title: {
-    color: '#FFFFFF',
-    fontSize: 22,
-    fontWeight: '700',
-    letterSpacing: 0.5,
-  },
-  subtitle: {
-    color: '#B08A55',
-    fontSize: 11,
-    letterSpacing: 2,
   },
   card: {
     width: '100%',
@@ -133,20 +108,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#506886',
     borderRadius: 10,
     paddingVertical: 14,
-    paddingHorizontal: 20,
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 10,
     marginTop: 8,
   },
   disabled: {
     opacity: 0.5,
-  },
-  googleIcon: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '800',
   },
   googleButtonText: {
     color: '#FFFFFF',
