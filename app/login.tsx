@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import * as Google from 'expo-auth-session/providers/google';
+import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import { router } from 'expo-router';
 import { useAuth } from '@/context/auth';
@@ -9,12 +10,14 @@ import LogoBrand from '@/components/ui/logo-brand';
 WebBrowser.maybeCompleteAuthSession();
 
 const GOOGLE_CLIENT_ID = '535906459398-i08rdcarj2n4cqhvgbp4khv6dvidcbg1.apps.googleusercontent.com';
+const REDIRECT_URI = 'https://auth.expo.io/@criatre/g360ia-app';
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
 
   const [request, response, promptAsync] = Google.useAuthRequest({
     clientId: GOOGLE_CLIENT_ID,
+    redirectUri: REDIRECT_URI,
   });
 
   useEffect(() => {

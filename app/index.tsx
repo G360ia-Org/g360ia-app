@@ -30,7 +30,7 @@ export default function SplashScreen() {
     if (!navigationState?.key || isLoading) return;
     const timer = setTimeout(() => {
       router.replace(user ? '/(tabs)' : '/login');
-    }, 2200);
+    }, 2800);
     return () => clearTimeout(timer);
   }, [navigationState?.key, isLoading, user]);
 
