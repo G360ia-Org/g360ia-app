@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet } from 'react-native';
-import { router } from 'expo-router';
+import { router, useRootNavigationState } from 'expo-router';
 import { useAuth } from '@/context/auth';
 import LogoBrand from '@/components/ui/logo-brand';
 
 export default function SplashScreen() {
   const { user, isLoading } = useAuth();
+  const navigationState = useRootNavigationState();
   const opacity = useRef(new Animated.Value(0)).current;
   const scale = useRef(new Animated.Value(0.75)).current;
 
@@ -26,12 +27,12 @@ export default function SplashScreen() {
   }, []);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (!navigationState?.key || isLoading) return;
     const timer = setTimeout(() => {
       router.replace(user ? '/(tabs)' : '/login');
     }, 2200);
     return () => clearTimeout(timer);
-  }, [isLoading, user]);
+  }, [navigationState?.key, isLoading, user]);
 
   return (
     <View style={styles.container}>
